@@ -1,5 +1,3 @@
-const ClientError = require('../../error/ClientError')
-
 class AlbumsHandler {
   constructor({ albumsService, songsService, validator }) {
     this._albumsService = albumsService
@@ -13,141 +11,65 @@ class AlbumsHandler {
   }
 
   async postAlbumHandler(request, h) {
-    try {
-      await this._validator.validateAlbumPayload(request.payload)
-      const { name, year } = request.payload
+    await this._validator.validateAlbumPayload(request.payload)
+    const { name, year } = request.payload
 
-      const albumId = await this._albumsService.addAlbum({ name, year })
+    const albumId = await this._albumsService.addAlbum({ name, year })
 
-      const response = h.response({
-        status: 'success',
-        message: 'Album berhasil ditambahkan',
-        data: {
-          albumId,
-        },
-      })
+    const response = h.response({
+      status: 'success',
+      message: 'Album berhasil ditambahkan',
+      data: {
+        albumId,
+      },
+    })
 
-      response.code(201)
-      return response
-    } catch (error) {
-      if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message,
-        })
-        response.code(error.statusCode)
-        return response
-      }
-
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.',
-      })
-      response.code(500)
-      console.error(error)
-      return response
-    }
+    response.code(201)
+    return response
   }
 
   async getAlbumByIdHandler(request, h) {
-    try {
-      const { id } = request.params
-      const album = await this._albumsService.getAlbumById(id)
-      const songs = await this._songsService.getSongsByAlbumId(id)
+    const { id } = request.params
+    const album = await this._albumsService.getAlbumById(id)
+    const songs = await this._songsService.getSongsByAlbumId(id)
 
-      const response = h.response({
-        status: 'success',
-        data: {
-          album: {
-            ...album,
-            songs,
-          },
+    const response = h.response({
+      status: 'success',
+      data: {
+        album: {
+          ...album,
+          songs,
         },
-      })
+      },
+    })
 
-      return response
-    } catch (error) {
-      if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message,
-        })
-        response.code(error.statusCode)
-        return response
-      }
-
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.',
-      })
-      response.code(500)
-      console.error(error)
-      return response
-    }
+    return response
   }
 
   async putAlbumByIdHandler(request, h) {
-    try {
-      const { id } = request.params
-      await this._validator.validateAlbumPayload(request.payload)
-      await this._albumsService.editAlbumById(id, request.payload)
+    const { id } = request.params
+    await this._validator.validateAlbumPayload(request.payload)
+    await this._albumsService.editAlbumById(id, request.payload)
 
-      const response = h.response({
-        status: 'success',
-        message: 'Album berhasil di update!',
-      })
+    const response = h.response({
+      status: 'success',
+      message: 'Album berhasil di update!',
+    })
 
-      return response
-    } catch (error) {
-      if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message,
-        })
-        response.code(error.statusCode)
-        return response
-      }
-
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.',
-      })
-      response.code(500)
-      console.error(error)
-      return response
-    }
+    return response
   }
 
   async deleteAlbumByIdHandler(request, h) {
-    try {
-      const { id } = request.params
-      await this._albumsService.deleteAlbumById(id)
+    const { id } = request.params
+    await this._albumsService.deleteAlbumById(id)
 
-      const response = h.response({
-        status: 'success',
-        message: 'Album has beed deleted!',
-      })
+    const response = h.response({
+      status: 'success',
+      message: 'Album has beed deleted!',
+    })
 
-      return response
-    } catch (error) {
-      if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message,
-        })
-        response.code(error.statusCode)
-        return response
-      }
-
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.',
-      })
-      response.code(500)
-      console.error(error)
-      return response
-    }
+    return response
   }
 }
-
+// semua error headling sdh di satukan dan di pindahkan di file server.js
 module.exports = AlbumsHandler
