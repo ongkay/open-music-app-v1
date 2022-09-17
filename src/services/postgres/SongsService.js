@@ -10,17 +10,17 @@ class SongsService {
   }
 
   async addSongs({ title, year, performer, genre, duration, albumId }) {
-    const id = nanoid(16)
+    const id = `song-${nanoid(16)}`
 
     const query = {
       text: 'INSERT INTO songs VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-      values: [`song-${id}`, title, year, performer, genre, duration, albumId],
+      values: [id, title, year, performer, genre, duration, albumId],
     }
 
     const result = await this._pool.query(query)
 
     if (!result.rows[0].id) {
-      throw new InvariantError('Lagu Gagal ditambahkan')
+      throw new InvariantError('Failed to add music!')
     }
 
     return result.rows[0].id
@@ -40,26 +40,11 @@ class SongsService {
 
     const result = await this._pool.query(query)
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Lagu tidak ditemukan')
     }
 
     return result.rows.map(mapDBToModel)[0]
-  }
-
-  async getSongsByAlbumId(albumId) {
-    const query = {
-      text: 'SELECT id, title, performer FROM songs WHERE album_id = $1',
-      values: [albumId],
-    }
-
-    const result = await this._pool.query(query)
-
-    if (!result.rows.length) {
-      return 'Lagunya belum di input gais'
-    }
-
-    return result.rows
   }
 
   async editSongById(id, { title, year, performer, genre, duration, albumId }) {
@@ -70,7 +55,7 @@ class SongsService {
 
     const result = await this._pool.query(query)
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Edit lagu gagal karena ID tidak ditemukan')
     }
   }
@@ -83,7 +68,7 @@ class SongsService {
 
     const result = await this._pool.query(query)
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError('Gagal hapus lagu karena id tidak ditemukan')
     }
   }

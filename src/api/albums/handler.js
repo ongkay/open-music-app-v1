@@ -1,7 +1,6 @@
 class AlbumsHandler {
-  constructor({ albumsService, songsService, validator }) {
-    this._albumsService = albumsService
-    this._songsService = songsService
+  constructor(service, validator) {
+    this._service = service
     this._validator = validator
 
     this.postAlbumHandler = this.postAlbumHandler.bind(this)
@@ -14,7 +13,7 @@ class AlbumsHandler {
     await this._validator.validateAlbumPayload(request.payload)
     const { name, year } = request.payload
 
-    const albumId = await this._albumsService.addAlbum({ name, year })
+    const albumId = await this._service.addAlbum({ name, year })
 
     const response = h.response({
       status: 'success',
@@ -30,8 +29,8 @@ class AlbumsHandler {
 
   async getAlbumByIdHandler(request, h) {
     const { id } = request.params
-    const album = await this._albumsService.getAlbumById(id)
-    const songs = await this._songsService.getSongsByAlbumId(id)
+    const album = await this._service.getAlbumById(id)
+    const songs = await this._service.getAlbumByIdWithSongs(id)
 
     const response = h.response({
       status: 'success',
@@ -49,7 +48,7 @@ class AlbumsHandler {
   async putAlbumByIdHandler(request, h) {
     const { id } = request.params
     await this._validator.validateAlbumPayload(request.payload)
-    await this._albumsService.editAlbumById(id, request.payload)
+    await this._service.editAlbumById(id, request.payload)
 
     const response = h.response({
       status: 'success',
@@ -61,7 +60,7 @@ class AlbumsHandler {
 
   async deleteAlbumByIdHandler(request, h) {
     const { id } = request.params
-    await this._albumsService.deleteAlbumById(id)
+    await this._service.deleteAlbumById(id)
 
     const response = h.response({
       status: 'success',
@@ -71,5 +70,5 @@ class AlbumsHandler {
     return response
   }
 }
-// semua error headling sdh di satukan dan di pindahkan di file server.js
+
 module.exports = AlbumsHandler
