@@ -61,18 +61,16 @@ const init = async () => {
     }
 
     if (response instanceof Error) {
-      if (!response.isServer) {
-        return h.continue
+      if (response.isServer) {
+        const newResponse = h.response({
+          status: 'error',
+          message: 'Maaf, terjadi kegagalan pada server.',
+        })
+
+        newResponse.code(500)
+        console.error(response)
+        return newResponse
       }
-
-      const newResponse = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server.',
-      })
-
-      newResponse.code(500)
-      console.error(response)
-      return newResponse
     }
 
     return h.continue || response
