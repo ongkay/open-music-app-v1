@@ -14,7 +14,7 @@ exports.up = (pgm) => {
       type: 'INT',
       notNull: true,
     },
-  });
+  })
 
   pgm.createTable('songs', {
     id: {
@@ -43,10 +43,10 @@ exports.up = (pgm) => {
     album_id: {
       type: 'TEXT',
     },
-  });
-};
+  })
+}
 
 exports.down = (pgm) => {
-  pgm.dropTable('albums');
-  pgm.dropTable('songs');
-};
+  pgm.dropTable('albums')
+  pgm.dropTable('songs')
+}
