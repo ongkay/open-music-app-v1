@@ -59,13 +59,24 @@ class UsersService {
     const match = await bcrypt.compare(password, hashedPassword)
 
     if (!match) {
-      throw new AuthenticationError('Passwordnya salah boss...')
+      throw new AuthenticationError('Passwordnya salah boss..')
     }
 
     return id
   }
 
-  // TODO tambah fungsi 1 lagi
+  async verifyExistingUserWithUserId(id) {
+    const query = {
+      text: 'SELECT id FROM users WHERE id = $1',
+      values: [id],
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rowCount) {
+      throw new NotFoundError('Not found music ID!')
+    }
+  }
 }
 
 module.exports = UsersService

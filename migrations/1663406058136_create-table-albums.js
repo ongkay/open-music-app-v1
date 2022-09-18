@@ -15,6 +15,6 @@ exports.up = (pgm) => {
   })
 }
 
-exports.down = (pgm) => {
-  pgm.dropTable('albums')
-}
+// exports.down = (pgm) => {
+//   pgm.dropTable('albums')
+// }

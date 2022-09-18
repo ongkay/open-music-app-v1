@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const Hapi = require('@hapi/hapi')
 const Jwt = require('@hapi/jwt')
+const logger = require('laabr')
 
 const ClientError = require('./error/ClientError')
 
@@ -26,10 +27,22 @@ const AuthenticationsService = require('./services/postgres/AuthenticationsServi
 const TokenManager = require('./tokenize/TokenManager')
 const AuthenticationsValidator = require('./validator/authentications')
 
+// playlists
+const playlists = require('./api/playlists')
+const PlaylistsService = require('./services/postgres/PlaylistsService')
+const PlaylistsValidator = require('./validator/playlists')
+
+// colaborations
+const collaborations = require('./api/collaborations')
+const CollaborationsService = require('./services/postgres/CollaborationsService')
+const CollaborationsValidator = require('./validator/collaborations')
+
 // Server Runing
 const init = async () => {
   const albumsService = new AlbumsService()
   const songsService = new SongsService()
+  const collaborationsService = new CollaborationsService()
+  const playlistsService = new PlaylistsService({ collaborationsService, songsService })
   const usersService = new UsersService()
   const authenticationsService = new AuthenticationsService()
 
@@ -48,10 +61,16 @@ const init = async () => {
     {
       plugin: Jwt,
     },
+    {
+      plugin: logger,
+      options: {
+        colored: true,
+      },
+    },
   ])
 
   // mendefinisikan strategy autentikasi jwt
-  server.auth.strategy('openmusic_jwt', 'jwt', {
+  server.auth.strategy('openmusicapp_jwt', 'jwt', {
     keys: process.env.ACCESS_TOKEN_KEY,
     verify: {
       aud: false,
@@ -98,6 +117,22 @@ const init = async () => {
         validator: AuthenticationsValidator,
       },
     },
+    {
+      plugin: playlists,
+      options: {
+        service: playlistsService,
+        validator: PlaylistsValidator,
+      },
+    },
+    {
+      plugin: collaborations,
+      options: {
+        collaborationsService,
+        playlistsService,
+        usersService,
+        validator: CollaborationsValidator,
+      },
+    },
   ])
 
   server.ext('onPreResponse', (request, h) => {
@@ -130,7 +165,6 @@ const init = async () => {
   })
 
   await server.start()
-  console.log(`Server berjalan pada ${server.info.uri}`)
 }
 
 init()
