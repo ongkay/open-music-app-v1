@@ -7,6 +7,6 @@ exports.up = (pgm) => {
   })
 }
 
-// exports.down = (pgm) => {
-//   pgm.dropTable('authentications')
-// }
+exports.down = (pgm) => {
+  pgm.dropTable('authentications')
+}
